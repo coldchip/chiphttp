@@ -55,6 +55,5 @@ size_t uri_decode (const char *src, const size_t len, char *dst);
 char *chttp_get_mime_type(char *r_ext);
 bool is_break(char *data);
 char *trimtrailing(char *str);
-void chttp_error(char *format, ...);
 
 #endif

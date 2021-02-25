@@ -19,7 +19,7 @@ Server *chttp_new(int port) {
 	int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if(sock == -1) { 
-        chttp_error("Unable to create server");
+        return NULL;
     }
 
 	struct timeval timeout;      
@@ -27,14 +27,14 @@ Server *chttp_new(int port) {
     timeout.tv_usec = 0;
 	
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(const char){1}, sizeof(int)) < 0) {
-		chttp_error("setsockopt(SO_REUSEADDR) failed");
+		return NULL;
 	}
 	if(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
-		chttp_error("setsockopt(SO_RCVTIMEO) failed");
+		return NULL;
 	}
 
 	if(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
-		chttp_error("setsockopt(SO_SNDTIMEO) failed");
+		return NULL;
 	}
 
 	SockAddrIn server_addr;
@@ -43,11 +43,11 @@ Server *chttp_new(int port) {
     server_addr.sin_port        = htons(port); 
 
     if((bind(sock, (SockAddr*)&server_addr, sizeof(server_addr))) != 0) { 
-        chttp_error("socket bind failed..."); 
+        return NULL;
     }
 
     if((listen(sock, 5)) != 0) {
-    	chttp_error("listen failed..."); 
+    	return NULL;
     }
 
     Server *server = malloc(sizeof(Server));
