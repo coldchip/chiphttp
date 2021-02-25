@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define _______ "\0\0\0\0"
 static const char uri_encode_tbl[ sizeof(int32_t) * 0x100 ] = {
@@ -51,5 +52,9 @@ char *malloc_fmt(char *format, ...);
 int stricmp(char const *a, char const *b);
 size_t uri_encode (const char *src, const size_t len, char *dst);
 size_t uri_decode (const char *src, const size_t len, char *dst);
+char *chttp_get_mime_type(char *r_ext);
+bool is_break(char *data);
+char *trimtrailing(char *str);
+void chttp_error(char *format, ...);
 
 #endif

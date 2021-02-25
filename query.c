@@ -6,7 +6,7 @@
 #include "query.h"
 #include "list.h"
 
-QueryEntry *get_query_entry(Header *header, char *key) {
+QueryEntry *chttp_get_query_entry(Header *header, char *key) {
 	List *entry = &header->query;
 	for(ListNode *i = list_begin(entry); i != list_end(entry); i = list_next(i)) {
 		QueryEntry *current = (QueryEntry*)i;
@@ -17,7 +17,7 @@ QueryEntry *get_query_entry(Header *header, char *key) {
 	return NULL;
 }
 
-void add_query(Header *header, char *key, char *format, ...) {
+void chttp_add_query(Header *header, char *key, char *format, ...) {
 
 	va_list args, argsc;
     va_start(args, format);
@@ -30,7 +30,7 @@ void add_query(Header *header, char *key, char *format, ...) {
 	va_end(args);
 	va_end(argsc);
 
-	QueryEntry *find_header = get_query_entry(header, key);
+	QueryEntry *find_header = chttp_get_query_entry(header, key);
 	if(find_header) {
 		find_header->val = realloc(find_header->val, (strlen(val) + 1) * sizeof(char));
 		strcpy(find_header->val, val);
@@ -45,7 +45,7 @@ void add_query(Header *header, char *key, char *format, ...) {
 	}
 }
 
-char *build_query(Header *header) {
+char *chttp_build_query(Header *header) {
 	char *result = malloc(sizeof(char) + 1);
 	*result = '\0';
 	List *entry = &header->query;
@@ -60,7 +60,7 @@ char *build_query(Header *header) {
 	return result;
 }
 
-int parse_query(Header *header, char* buf) {
+int chttp_parse_query(Header *header, char* buf) {
 	char *saveptr;
 	char *key = strtok_r(buf, "=", &saveptr);
 	char *val = strtok_r(NULL, "&", &saveptr);
@@ -72,23 +72,23 @@ int parse_query(Header *header, char* buf) {
 		char val_decoded[strlen(val) + 1];
 		uri_decode(val, strlen(val), val_decoded);
 
-		add_query(header, key_decoded, "%s", val_decoded);
+		chttp_add_query(header, key_decoded, "%s", val_decoded);
 		key = strtok_r(NULL, "=", &saveptr);
 		val = strtok_r(NULL, "&", &saveptr);
 	}
 	return 0;
 }
 
-void free_query_entry(QueryEntry *entry) {
+void chttp_free_query_entry(QueryEntry *entry) {
 	free(entry->key);
 	free(entry->val);
 	free(entry);
 }
 
-void free_all_query_entries(Header *header) {
+void chttp_clean_query(Header *header) {
 	List *entry = &header->query;
 	while(!list_empty(entry)) {
 		QueryEntry *current = (QueryEntry*)list_remove(list_begin(entry));
-		free_query_entry(current);
+		chttp_free_query_entry(current);
 	}
 }

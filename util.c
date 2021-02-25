@@ -1,5 +1,6 @@
 #include "util.h"
 #include <ctype.h>
+#include <string.h>
 #include <stdio.h>
 
 char *malloc_fmt(char *format, ...) {
@@ -64,4 +65,64 @@ size_t uri_decode(const char *src, const size_t len, char *dst) {
 	}
 	dst[j] = '\0';
 	return j;
+}
+
+char *chttp_get_mime_type(char *r_ext) {
+	char *e_ext = strrchr(r_ext, '.');
+	if(!e_ext) {
+		e_ext = r_ext;
+	}
+	e_ext++;
+	
+	if(stricmp(e_ext, "js") == 0) {
+		return strdup("application/javascript");
+	} else if(stricmp(e_ext, "html") == 0) {
+		return strdup("text/html");
+	} else if(stricmp(e_ext, "css") == 0) {
+		return strdup("text/css");
+	} else if(stricmp(e_ext, "png") == 0) {
+		return strdup("image/png");
+	} else if(stricmp(e_ext, "jpg") == 0) {
+		return strdup("image/jpeg");
+	} else if(stricmp(e_ext, "jpeg") == 0) {
+		return strdup("image/jpeg");
+	} else if(stricmp(e_ext, "svg") == 0) {
+		return strdup("image/svg+xml");
+	} else if(stricmp(e_ext, "mp3") == 0) {
+		return strdup("audio/mp3");
+	} else if(stricmp(e_ext, "mp4") == 0) {
+		return strdup("video/mp4");
+	} else if(stricmp(e_ext, "mov") == 0) {
+		return strdup("video/quicktime");
+	} else {
+		return strdup("application/octet-stream");
+	}
+	
+}
+
+bool is_break(char *data) {
+	return strncmp(data, "\r\n", 2) == 0;
+}
+
+char *trimtrailing(char *str) {
+	while(*str == ' ') {
+		str++;
+	}
+	if(*str == 0) {
+		return str;
+	}
+	return str;
+}
+
+void chttp_error(char *format, ...) {
+	va_list args;
+    va_start(args, format);
+
+	char fmt[1000];
+	snprintf(fmt, sizeof(fmt), "\033[0;32m[ChipHTTP] %s\033[0m\n", format);
+	vprintf(fmt, args);
+    
+    va_end(args);
+
+    exit(1);
 }

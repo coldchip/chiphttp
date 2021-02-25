@@ -6,7 +6,7 @@
 #include "cookie.h"
 #include "query.h"
 
-Header *new_header() {
+Header *chttp_new_header() {
 	Header *header = malloc(sizeof(Header));
 	list_clear(&header->entry);
 	list_clear(&header->query);
@@ -15,11 +15,11 @@ Header *new_header() {
 	return header;
 }
 
-void set_status(Header *header, int status) {
+void chttp_set_status(Header *header, int status) {
 	header->status = status;
 }
 
-HeaderEntry *get_header_entry(Header *header, char *key) {
+HeaderEntry *chttp_get_header_entry(Header *header, char *key) {
 	List *entry = &header->entry;
 	for(ListNode *i = list_begin(entry); i != list_end(entry); i = list_next(i)) {
 		HeaderEntry *current = (HeaderEntry*)i;
@@ -30,7 +30,7 @@ HeaderEntry *get_header_entry(Header *header, char *key) {
 	return NULL;
 }
 
-void add_header(Header *header, char *key, char *format, ...) {
+void chttp_add_header(Header *header, char *key, char *format, ...) {
 
 	va_list args, argsc;
     va_start(args, format);
@@ -43,7 +43,7 @@ void add_header(Header *header, char *key, char *format, ...) {
 	va_end(args);
 	va_end(argsc);
 
-	HeaderEntry *find_header = get_header_entry(header, key);
+	HeaderEntry *find_header = chttp_get_header_entry(header, key);
 	if(find_header) {
 		find_header->val = realloc(find_header->val, (strlen(val) + 1) * sizeof(char));
 		strcpy(find_header->val, val);
@@ -58,7 +58,7 @@ void add_header(Header *header, char *key, char *format, ...) {
 	}
 }
 
-char *build_header(Header *header) {
+char *chttp_build_header(Header *header) {
 	// Inject Status Code and Protocol
 	char status[128];
 	if(header->status == 200) {
@@ -93,7 +93,7 @@ char *build_header(Header *header) {
 
 	// Inject Set-Cookie if Cookies Buffer > 0
 	if(list_size(&header->cookie) > 0) {
-		char *cookie = build_cookie(header);
+		char *cookie = chttp_build_cookie(header);
 		result = realloc(result, strlen(result) + strlen(cookie) + 1);
 		strcat(result, cookie);
 		free(cookie);
@@ -104,21 +104,7 @@ char *build_header(Header *header) {
 	return result;
 }
 
-bool is_break(char *data) {
-	return strncmp(data, "\r\n", 2) == 0;
-}
-
-char *trimtrailing(char *str) {
-	while(*str == ' ') {
-		str++;
-	}
-	if(*str == 0) {
-		return str;
-	}
-	return str;
-}
-
-int parse_header(Header *header, char* buf) {
+int chttp_parse_header(Header *header, char* buf) {
 	int header_index = 0;
 	char *p = buf;
 	while(1) {
@@ -149,7 +135,7 @@ int parse_header(Header *header, char* buf) {
 					char *path  = strtok_r(path_query, "?", &saveptr2);
 					char *query = strtok_r(NULL, "", &saveptr2);
 					if(query) {
-						if(parse_query(header, query) != 0) {
+						if(chttp_parse_query(header, query) != 0) {
 							return -1;
 						}
 					}
@@ -172,9 +158,9 @@ int parse_header(Header *header, char* buf) {
 				char *key = strtok_r(k, ":", &saveptr);
 				char *val = strtok_r(NULL, "", &saveptr);
 				if(key && val) {
-					add_header(header, trimtrailing(key), "%s", trimtrailing(val));
+					chttp_add_header(header, trimtrailing(key), "%s", trimtrailing(val));
 					if(stricmp(key, "cookie") == 0) {
-						if(parse_cookie(header, val) != 0) {
+						if(chttp_parse_cookie(header, val) != 0) {
 							return -1;
 						}
 					}
@@ -190,21 +176,25 @@ int parse_header(Header *header, char* buf) {
 	return 0;
 }
 
-void free_header_entry(HeaderEntry *entry) {
+void chttp_free_header_entry(HeaderEntry *entry) {
 	free(entry->key);
 	free(entry->val);
 	free(entry);
 }
 
-void free_all_header_entries(Header *header) {
+void chttp_clean_header(Header *header) {
 	List *entry = &header->entry;
 	while(!list_empty(entry)) {
 		HeaderEntry *current = (HeaderEntry*)list_remove(list_begin(entry));
-		free_header_entry(current);
+		chttp_free_header_entry(current);
 	}
+	chttp_clean_query(header);
+	chttp_clean_cookie(header);
 }
 
-void free_header(Header *header) {
-	free_all_header_entries(header);
+void chttp_free_header(Header *header) {
+	chttp_clean_header(header);
+	chttp_clean_query(header);
+	chttp_clean_cookie(header);
 	free(header);
 }

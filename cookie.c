@@ -7,7 +7,7 @@
 #include "header.h"
 #include "cookie.h"
 
-CookieEntry *get_cookie_entry(Header *header, char *key) {
+CookieEntry *chttp_get_cookie_entry(Header *header, char *key) {
 	List *entry = &header->cookie;
 	for(ListNode *i = list_begin(entry); i != list_end(entry); i = list_next(i)) {
 		CookieEntry *current = (CookieEntry*)i;
@@ -18,7 +18,7 @@ CookieEntry *get_cookie_entry(Header *header, char *key) {
 	return NULL;
 }
 
-void add_cookie(Header *header, char *key, char *format, ...) {
+void chttp_add_cookie(Header *header, char *key, char *format, ...) {
 
 	va_list args, argsc;
     va_start(args, format);
@@ -31,7 +31,7 @@ void add_cookie(Header *header, char *key, char *format, ...) {
 	va_end(args);
 	va_end(argsc);
 
-	CookieEntry *find_header = get_cookie_entry(header, key);
+	CookieEntry *find_header = chttp_get_cookie_entry(header, key);
 	if(find_header) {
 		find_header->val = realloc(find_header->val, (strlen(val) + 1) * sizeof(char));
 		strcpy(find_header->val, val);
@@ -46,7 +46,7 @@ void add_cookie(Header *header, char *key, char *format, ...) {
 	}
 }
 
-char *build_cookie(Header *header) {
+char *chttp_build_cookie(Header *header) {
 	char *result = malloc(sizeof(char) + 1);
 	*result = '\0';
 	List *entry = &header->cookie;
@@ -61,7 +61,7 @@ char *build_cookie(Header *header) {
 	return result;
 }
 
-int parse_cookie(Header *header, char* buf) {
+int chttp_parse_cookie(Header *header, char* buf) {
 	char *saveptr;
 	char *key = strtok_r(buf, "=", &saveptr);
 	char *val = strtok_r(NULL, ";", &saveptr);
@@ -71,23 +71,23 @@ int parse_cookie(Header *header, char* buf) {
 
 		char val_decoded[strlen(val) + 1];
 		uri_decode(val, strlen(val), val_decoded);
-		add_cookie(header, trimtrailing(key_decoded), "%s", trimtrailing(val_decoded));
+		chttp_add_cookie(header, trimtrailing(key_decoded), "%s", trimtrailing(val_decoded));
 		key = strtok_r(NULL, "=", &saveptr);
 		val = strtok_r(NULL, ";", &saveptr);
 	}
 	return 0;
 }
 
-void free_cookie_entry(CookieEntry *entry) {
+void chttp_free_cookie_entry(CookieEntry *entry) {
 	free(entry->key);
 	free(entry->val);
 	free(entry);
 }
 
-void free_all_cookie_entries(Header *header) {
+void chttp_clean_cookie(Header *header) {
 	List *entry = &header->cookie;
 	while(!list_empty(entry)) {
 		CookieEntry *current = (CookieEntry*)list_remove(list_begin(entry));
-		free_cookie_entry(current);
+		chttp_free_cookie_entry(current);
 	}
 }

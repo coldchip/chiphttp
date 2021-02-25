@@ -10,12 +10,12 @@ typedef struct _CookieEntry {
   int expiry;
 } CookieEntry;
 
-CookieEntry *get_cookie_entry(Header *header, char *key);
-void add_cookie(Header *header, char *key, char *format, ...);
-char *build_cookie(Header *header);
-int parse_cookie(Header *header, char* buf);
-char *build_cookie(Header *header);
-void free_cookie_entry(CookieEntry *entry);
-void free_all_cookie_entries(Header *header);
+CookieEntry *chttp_get_cookie_entry(Header *header, char *key);
+void chttp_add_cookie(Header *header, char *key, char *format, ...);
+char *chttp_build_cookie(Header *header);
+int chttp_parse_cookie(Header *header, char* buf);
+char *chttp_build_cookie(Header *header);
+void chttp_free_cookie_entry(CookieEntry *entry);
+void chttp_clean_cookie(Header *header);
 
 #endif

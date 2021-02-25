@@ -34,16 +34,14 @@ typedef struct _Header {
   List cookie;
 } Header;
 
-Header *new_header();
-void set_status(Header *header, int status);
-HeaderEntry *get_header_entry(Header *header, char *key);
-void add_header(Header *header, char *key, char *format, ...);
-char *build_header(Header *header);
-bool is_break(char *data);
-char *trimtrailing(char *str);
-int parse_header(Header *header, char* buf);
-void free_header_entry(HeaderEntry *entry);
-void free_all_header_entries(Header *entry);
-void free_header(Header *header);
+Header *chttp_new_header();
+void chttp_set_status(Header *header, int status);
+HeaderEntry *chttp_get_header_entry(Header *header, char *key);
+void chttp_add_header(Header *header, char *key, char *format, ...);
+char *chttp_build_header(Header *header);
+int chttp_parse_header(Header *header, char* buf);
+void chttp_free_header_entry(HeaderEntry *entry);
+void chttp_clean_header(Header *entry);
+void chttp_free_header(Header *header);
 
 #endif
