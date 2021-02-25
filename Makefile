@@ -12,9 +12,9 @@ endif
 .PHONY: clean
 
 all:
-	./build.sh
+	./build.sh compile
 run:
-	$(EXE)
+	./build.sh run
 
 clean:
-	rm -rf bin/*
+	./build.sh clean

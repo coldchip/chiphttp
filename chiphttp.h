@@ -2,16 +2,9 @@
 #define CHIPHTTP_H
 
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdarg.h>
 #include <stdint.h>
-#ifdef _WIN32
-	#include <winsock2.h>
-	#include <ws2tcpip.h>
-#else
-	#include <netinet/in.h>
-#endif
-
+#include <netinet/in.h>
 #include "list.h"
 #include "header.h"
 

@@ -1,5 +1,3 @@
-#include <stdarg.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -9,13 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pthread.h>
-#ifdef _WIN32
-	#include <winsock2.h>
-	#include <ws2tcpip.h>
-#else
-	#include <netinet/in.h>
-#endif
-
+#include <netinet/in.h>
 #include "util.h"
 #include "chiphttp.h"
 #include "query.h"
